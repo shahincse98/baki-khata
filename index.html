@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>সহজ বাকি খাতা - ডিজিটাল হিসাব খাতা ও বকেয়া ব্যবস্থাপনা</title>
+  <meta name="description" content="দোকানের বাকি খাতা ও কাস্টমারদের বকেয়া হিসাব সহজে ও দ্রুত পরিচালনার জন্য ডিজিটাল ওয়েব অ্যাপ। এক ক্লিকে হোয়াটসঅ্যাপ রিমাইন্ডার ও লেজার হিসাব।">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="main-header">
+      <div class="header-left">
+        <div class="logo-box">
+          <span class="logo-icon">📒</span>
+        </div>
+        <div class="store-meta">
+          <div class="store-title-wrap">
+            <h1 id="storeNameDisplay">মেসার্স ভাই ভাই স্টোর</h1>
+            <button id="editStoreBtn" class="icon-btn-subtle" title="দোকানের নাম পরিবর্তন">✏️</button>
+          </div>
+          <p class="store-subtitle" id="currentDateStr">ডিজিটাল বাকি খাতা • স্মার্ট হিসাব</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="themeToggleBtn" class="glass-btn icon-only" title="ডার্ক/লাইট মোড">🌓</button>
+        <button id="backupModalBtn" class="glass-btn" title="ডাটা ব্যাকআপ বা রিস্টোর">
+          <span class="btn-icon">💾</span> <span class="btn-text">ব্যাকআপ</span>
+        </button>
+        <button id="addCustomerTopBtn" class="primary-btn">
+          <span class="btn-icon">➕</span> নতুন কাস্টমার
+        </button>
+      </div>
+    </header>
+
+    <!-- Overview Stats Banner -->
+    <section class="stats-grid" id="statsSection">
+      <div class="stat-card card-due">
+        <div class="stat-icon-wrap">📉</div>
+        <div class="stat-info">
+          <span class="stat-label">মোট বাকি পাওনা</span>
+          <h2 class="stat-value" id="totalDueDisplay">৳ 0</h2>
+          <span class="stat-sub" id="dueCustomerCount">০ জন কাস্টমার বাকিদার</span>
+        </div>
+      </div>
+
+      <div class="stat-card card-collected">
+        <div class="stat-icon-wrap">📈</div>
+        <div class="stat-info">
+          <span class="stat-label">আজকের জমা আদায়</span>
+          <h2 class="stat-value" id="todayCollectedDisplay">৳ 0</h2>
+          <span class="stat-sub" id="todayCollectedCount">০ টি জমা লেনদেন</span>
+        </div>
+      </div>
+
+      <div class="stat-card card-customers">
+        <div class="stat-icon-wrap">👥</div>
+        <div class="stat-info">
+          <span class="stat-label">মোট নিবন্ধিত কাস্টমার</span>
+          <h2 class="stat-value" id="totalCustomerCount">0</h2>
+          <span class="stat-sub">সক্রিয় খাতা তালিকা</span>
+        </div>
+      </div>
+
+      <div class="stat-card card-advance">
+        <div class="stat-icon-wrap">✨</div>
+        <div class="stat-info">
+          <span class="stat-label">অগ্রিম জমা ব্যালেন্স</span>
+          <h2 class="stat-value" id="totalAdvanceDisplay">৳ 0</h2>
+          <span class="stat-sub">ক্রেতার অতিরিক্ত জমা</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Workspace -->
+    <main class="content-layout">
+      <!-- Left Column: Search & Customer List -->
+      <section class="customers-section">
+        <div class="section-toolbar">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="customerSearchInput" placeholder="কাস্টমারের নাম বা ফোন নম্বর খুঁজুন..." autocomplete="off">
+            <button id="clearSearchBtn" class="clear-btn hidden" title="সার্চ মুছুন">✕</button>
+          </div>
+
+          <div class="filter-sort-bar">
+            <div class="filter-pills" id="filterPills">
+              <button class="filter-pill active" data-filter="all">সবাই</button>
+              <button class="filter-pill" data-filter="due">বাকি আছে 🔴</button>
+              <button class="filter-pill" data-filter="cleared">পরিশোধিত ⚪</button>
+              <button class="filter-pill" data-filter="advance">অগ্রিম জমা 🟢</button>
+            </div>
+            
+            <div class="sort-select-wrap">
+              <select id="sortSelect">
+                <option value="due-desc">বাকি বেশি থেকে কম</option>
+                <option value="recent">সর্বশেষ লেনদেন</option>
+                <option value="name-asc">নাম (A-Z)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer List Container -->
+        <div class="customer-cards-list" id="customerCardsList">
+          <!-- Dynamic Customer Cards Rendered Here -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state hidden" id="emptyCustomerState">
+          <div class="empty-icon">📂</div>
+          <h3>কোনো কাস্টমার পাওয়া যায়নি</h3>
+          <p>নতুন কাস্টমার যুক্ত করতে উপরের বাটন চাপুন।</p>
+        </div>
+      </section>
+
+      <!-- Right Column: Active Customer Ledger / Quick Detail Panel -->
+      <section class="ledger-section" id="ledgerSection">
+        <div class="ledger-placeholder" id="ledgerPlaceholder">
+          <div class="placeholder-icon">👈</div>
+          <h3>যেকোনো কাস্টমারে ক্লিক করুন</h3>
+          <p>বাকি বা জমার এন্ট্রি দেখতে এবং নতুন হিসাব যোগ করতে বামপাশ থেকে কাস্টমার নির্বাচন করুন।</p>
+        </div>
+
+        <div class="ledger-view hidden" id="ledgerView">
+          <!-- Customer Header Details -->
+          <div class="ledger-header-card">
+            <div class="ledger-user-info">
+              <div class="user-avatar-large" id="ledgerAvatar">রহ</div>
+              <div>
+                <div class="user-name-row">
+                  <h2 id="ledgerName">মো: রহিম আহমেদ</h2>
+                  <span class="badge" id="ledgerStatusBadge">বাকি আছে</span>
+                </div>
+                <p class="user-contact" id="ledgerContact">📱 ০১৭১১-XXXXXX • 📍 দক্ষিণ পাড়া</p>
+              </div>
+            </div>
+
+            <div class="ledger-due-box">
+              <span class="due-box-label">বর্তমান মোট বকেয়া</span>
+              <div class="due-box-amount" id="ledgerBalanceAmount">৳ ১,২৫০</div>
+            </div>
+          </div>
+
+          <!-- Quick Action Buttons -->
+          <div class="ledger-action-bar">
+            <button id="openGiveCreditBtn" class="action-btn btn-danger">
+              <span class="btn-icon">🔴</span> বাকি দিলাম (+)
+            </button>
+            <button id="openGotPaymentBtn" class="action-btn btn-success">
+              <span class="btn-icon">🟢</span> টাকা পেলাম (-)
+            </button>
+            <button id="sendWhatsAppReminderBtn" class="action-btn btn-wa">
+              <span class="btn-icon">💬</span> হোয়াটসঅ্যাপ তাগাদা
+            </button>
+            <button id="printLedgerBtn" class="action-btn btn-outline" title="রসিদ প্রিন্ট">
+              <span class="btn-icon">🖨️</span> প্রিন্ট রসিদ
+            </button>
+            <button id="deleteCustomerBtn" class="action-btn btn-subtle" title="কাস্টমার খাতা মুছুন">
+              <span class="btn-icon">🗑️</span>
+            </button>
+          </div>
+
+          <!-- Transaction Ledger Timeline -->
+          <div class="ledger-history-card">
+            <div class="history-card-header">
+              <h3>হিসাব বিবরণী (লেজার হিস্ট্রি)</h3>
+              <span class="history-count" id="ledgerTxCount">০ টি লেনদেন</span>
+            </div>
+
+            <div class="transactions-table-wrap">
+              <table class="tx-table" id="txTable">
+                <thead>
+                  <tr>
+                    <th>তারিখ ও সময়</th>
+                    <th>বিবরণ / নোট</th>
+                    <th class="text-right">বাকি (+)</th>
+                    <th class="text-right">জমা (-)</th>
+                    <th class="text-right">অবশিষ্ট ব্যালেন্স</th>
+                    <th class="text-center">অ্যাকশন</th>
+                  </tr>
+                </thead>
+                <tbody id="txTableBody">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+              <div class="empty-tx-state hidden" id="emptyTxState">
+                <p>এখনো কোনো লেনদেন রেকর্ড করা হয়নি।</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL: Add New Customer -->
+  <div class="modal-backdrop hidden" id="addCustomerModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>নতুন কাস্টমার যোগ করুন</h3>
+        <button class="close-modal-btn" data-close="addCustomerModal">✕</button>
+      </div>
+      <form id="addCustomerForm" class="modal-form">
+        <div class="form-group">
+          <label for="newCustName">কাস্টমারের নাম <span class="required">*</span></label>
+          <input type="text" id="newCustName" required placeholder="উদা: আব্দুল করিম">
+        </div>
+        <div class="form-group">
+          <label for="newCustPhone">মোবাইল নম্বর <span class="required">*</span></label>
+          <input type="tel" id="newCustPhone" required placeholder="উদা: 01712345678">
+        </div>
+        <div class="form-group">
+          <label for="newCustAddress">ঠিকানা / পরিচিতি (ঐচ্ছিক)</label>
+          <input type="text" id="newCustAddress" placeholder="উদা: বাজার মোড়, ৩ নং গলি">
+        </div>
+        <div class="form-group">
+          <label for="newCustInitialDue">পূর্বের বাকি (যদি থাকে)</label>
+          <input type="number" id="newCustInitialDue" min="0" placeholder="0" value="0">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="glass-btn" data-close="addCustomerModal">বাতিল</button>
+          <button type="submit" class="primary-btn">সংরক্ষণ করুন</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Record Transaction (Credit / Debit) -->
+  <div class="modal-backdrop hidden" id="txModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="txModalTitle">লেনদেন যুক্ত করুন</h3>
+        <button class="close-modal-btn" data-close="txModal">✕</button>
+      </div>
+      <form id="txForm" class="modal-form">
+        <input type="hidden" id="txTypeInput" value="credit">
+        
+        <div class="tx-type-selector">
+          <button type="button" class="type-btn type-credit active" id="selectCreditBtn">
+            🔴 বাকি দিলাম (+)
+          </button>
+          <button type="button" class="type-btn type-debit" id="selectDebitBtn">
+            🟢 টাকা পেলাম (-)
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label for="txAmount">টাকার পরিমাণ (৳) <span class="required">*</span></label>
+          <input type="number" id="txAmount" min="1" step="any" required placeholder="0.00" autofocus>
+        </div>
+
+        <div class="form-group">
+          <label for="txNote">পণ্য বা বিবরণের নোট</label>
+          <input type="text" id="txNote" placeholder="উদা: সয়াবিন তেল ২ লিটার, ডাল ১ কেজি">
+        </div>
+
+        <div class="form-group">
+          <label for="txDate">তারিখ</label>
+          <input type="date" id="txDate">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="glass-btn" data-close="txModal">বাতিল</button>
+          <button type="submit" class="primary-btn" id="saveTxBtn">এন্ট্রি সেভ করুন</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Store Name Setting -->
+  <div class="modal-backdrop hidden" id="storeModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>দোকানের তথ্য পরিবর্তন</h3>
+        <button class="close-modal-btn" data-close="storeModal">✕</button>
+      </div>
+      <form id="storeForm" class="modal-form">
+        <div class="form-group">
+          <label for="storeNameInput">দোকানের নাম</label>
+          <input type="text" id="storeNameInput" required placeholder="আপনার দোকানের নাম">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="glass-btn" data-close="storeModal">বাতিল</button>
+          <button type="submit" class="primary-btn">সংরক্ষণ করুন</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Backup / Export / Import -->
+  <div class="modal-backdrop hidden" id="backupModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>ডাটা ব্যাকআপ ও রিস্টোর</h3>
+        <button class="close-modal-btn" data-close="backupModal">✕</button>
+      </div>
+      <div class="backup-modal-content">
+        <div class="backup-box">
+          <h4>📥 ডাটা ডাউনলোড (Backup)</h4>
+          <p>আপনার সকল কাস্টমার ও বাকি-জমার হিসাব আপনার ডিভাইসে ফাইল আকারে সুরক্ষিত রাখুন।</p>
+          <button id="downloadBackupBtn" class="primary-btn">JSON ব্যাকআপ ফাইল ডাউনলোড করুন</button>
+        </div>
+        <hr class="divider">
+        <div class="backup-box">
+          <h4>📤 ডাটা রিস্টোর (Restore)</h4>
+          <p>পূর্বে ডাউনলোড করা ব্যাকআপ ফাইল আপলোড করে হিসাব ফিরিয়ে আনুন।</p>
+          <input type="file" id="restoreFileInput" accept=".json" class="file-input">
+        </div>
+        <hr class="divider">
+        <div class="backup-box">
+          <h4>🔄 ডেমো ডাটা রিলোড</h4>
+          <p>পরীক্ষা করার জন্য নমুনা কাস্টমার ও হিসাব লোড করুন।</p>
+          <button id="loadSampleDataBtn" class="glass-btn">ডেমো ডাটা লোড করুন</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
